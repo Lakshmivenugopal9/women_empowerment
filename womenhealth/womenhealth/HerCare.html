@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>HerCare</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet"/>
+<style>
+:root,[data-theme="light"]{--bg:#FFF8F6;--surface:#FFFFFF;--s2:#FFF0F3;--pri:#E8637A;--psoft:#F9D0D8;--pdark:#C94D63;--txt:#2D2D2D;--muted:#7A6B6B;--acc:#C084A0;--bdr:#F0E0E4;--danger:#D94F4F;--shadow:0 2px 16px rgba(232,99,122,.10);--shadowlg:0 8px 32px rgba(232,99,122,.15);--nav:64px;--r:14px;--rs:8px}
+[data-theme="dark"]{--bg:#1A1520;--surface:#241D2B;--s2:#2E2438;--pri:#E8637A;--psoft:#3D2535;--pdark:#F07A8F;--txt:#F5EEF0;--muted:#A89BA0;--acc:#C084A0;--bdr:#3A2D3A;--danger:#E06060;--shadow:0 2px 16px rgba(0,0,0,.35);--shadowlg:0 8px 32px rgba(0,0,0,.45)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100dvh;transition:background .3s,color .3s;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:'Playfair Display',serif;line-height:1.2}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+input,select,textarea{font-family:inherit}
+
+/* SPLASH */
+#splash{position:fixed;inset:0;z-index:9999;background:linear-gradient(145deg,#E8637A 0%,#C084A0 55%,#9B6BB5 100%);display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none}
+#splash.hide{animation:splashOut .4s ease forwards}
+@keyframes splashOut{to{opacity:0;transform:scale(1.04)}}
+.sp-inner{text-align:center;color:#fff;animation:fadeUp .65s ease both}
+.sp-logo{margin-bottom:1rem}
+.sp-logo svg{filter:drop-shadow(0 4px 12px rgba(0,0,0,.2))}
+.sp-title{font-family:'Playfair Display',serif;font-size:clamp(2.8rem,9vw,4.5rem);font-weight:700;letter-spacing:-.02em;text-shadow:0 2px 16px rgba(0,0,0,.2)}
+.sp-tag{font-size:1.05rem;color:rgba(255,255,255,.85);margin-top:.4rem;letter-spacing:.05em}
+.sp-dots{display:flex;gap:8px;justify-content:center;margin-top:2.5rem}
+.sp-dots span{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.5);animation:dot 1.4s ease-in-out infinite}
+.sp-dots span:nth-child(2){animation-delay:.2s}
+.sp-dots span:nth-child(3){animation-delay:.4s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes dot{0%,80%,100%{opacity:.3;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+
+/* APP */
+#app{display:flex;flex-direction:column;min-height:100dvh}
+#main{flex:1;overflow-y:auto;padding:1.25rem 1rem calc(var(--nav) + 1.5rem);max-width:680px;width:100%;margin:0 auto}
+
+/* TOP NAV */
+#tnav{display:none;align-items:center;justify-content:space-between;padding:0 2rem;height:var(--nav);background:var(--surface);border-bottom:1px solid var(--bdr);position:sticky;top:0;z-index:100;box-shadow:var(--shadow);transition:background .3s,border-color .3s}
+.nbrand{display:flex;align-items:center;gap:.5rem;font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;color:var(--pri)}
+.tlinks{display:flex;gap:.25rem}
+
+/* BOTTOM NAV */
+#bnav{position:fixed;bottom:0;left:0;right:0;height:var(--nav);background:var(--surface);border-top:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-around;z-index:100;box-shadow:0 -2px 16px rgba(0,0,0,.08);transition:background .3s,border-color .3s}
+
+/* NAV ITEMS */
+.ni{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:44px;min-height:44px;padding:.35rem .6rem;border-radius:var(--rs);color:var(--muted);font-size:.7rem;font-weight:500;transition:color .2s,background .2s;cursor:pointer}
+.ni .ico{font-size:1.25rem;line-height:1}
+.ni .lbl{font-size:.65rem}
+.ni.on{color:var(--pri);background:var(--psoft)}
+.ni:hover:not(.on){color:var(--pri);background:var(--psoft)}
+
+/* THEME BTN */
+.tbtn{min-width:44px;min-height:44px;border-radius:50%;font-size:1.2rem;display:flex;align-items:center;justify-content:center;background:var(--s2);border:1px solid var(--bdr);transition:background .2s,transform .15s}
+.tbtn:hover{transform:scale(1.1)}
+.tbtn:active{transform:scale(.95)}
+#tfloat{position:fixed;bottom:calc(var(--nav) + 1rem);right:1rem;z-index:99;box-shadow:var(--shadow)}
+
+/* VIEWS */
+.view{display:none}
+.view.on{display:block;animation:vin .25s ease both}
+@keyframes vin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.vh{margin-bottom:1.5rem}
+.vt{font-size:1.75rem;color:var(--txt)}
+.vs{color:var(--muted);font-size:.9rem;margin-top:.25rem}
+
+/* HOME */
+.hero{text-align:center;padding:2.5rem 1rem 2rem}
+.hero-ico{margin-bottom:1rem}
+.hero-title{font-size:clamp(2rem,7vw,3rem);color:var(--pri);letter-spacing:-.02em}
+.hero-tag{color:var(--muted);font-size:1rem;margin-top:.4rem;letter-spacing:.03em}
+.hero-btns{display:flex;gap:.75rem;justify-content:center;margin-top:1.75rem;flex-wrap:wrap}
+.fcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-top:.5rem;padding-bottom:1rem}
+.fc{background:var(--surface);border:1px solid var(--bdr);border-radius:var(--r);padding:1.25rem 1rem;text-align:center;box-shadow:var(--shadow);transition:transform .2s,box-shadow .2s}
+.fc:hover{transform:translateY(-3px);box-shadow:var(--shadowlg)}
+.fc-ico{font-size:2rem;margin-bottom:.6rem}
+.fc-title{font-size:.95rem;font-weight:600;color:var(--txt);margin-bottom:.4rem}
+.fc-desc{font-size:.8rem;color:var(--muted);line-height:1.5}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:.6rem 1.5rem;border-radius:100px;font-size:.95rem;font-weight:600;transition:transform .15s,box-shadow .15s,background .2s;cursor:pointer}
+.btn:active{transform:scale(.97)}
+.btn-p{background:var(--pri);color:#fff;box-shadow:0 4px 14px rgba(232,99,122,.35)}
+.btn-p:hover{background:var(--pdark);box-shadow:0 6px 20px rgba(232,99,122,.45)}
+.btn-o{background:transparent;color:var(--pri);border:2px solid var(--pri)}
+.btn-o:hover{background:var(--psoft)}
+.btn-d{background:var(--danger);color:#fff}
+.btn-d:hover{filter:brightness(1.1)}
+.btn-full{width:100%}
+
+/* FORM */
+#lform{display:flex;flex-direction:column;gap:1.25rem}
+.fg{display:flex;flex-direction:column;gap:.4rem}
+.fl{font-size:.875rem;font-weight:600;color:var(--txt)}
+.fl .opt{font-weight:400;color:var(--muted)}
+.fi{background:var(--surface);border:1.5px solid var(--bdr);border-radius:var(--rs);padding:.65rem .9rem;font-size:.95rem;color:var(--txt);min-height:44px;transition:border-color .2s,box-shadow .2s;width:100%}
+.fi:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 3px var(--psoft)}
+.fsel{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23E8637A' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .9rem center;padding-right:2.5rem}
+.fta{resize:vertical;min-height:88px}
+.ferr{font-size:.8rem;color:var(--danger);min-height:1rem;display:block}
+.flow-wrap{max-height:0;overflow:hidden;transition:max-height .35s ease,opacity .25s ease;opacity:0}
+.flow-wrap.open{max-height:120px;opacity:1}
+.pills{display:flex;gap:.5rem;flex-wrap:wrap}
+.pill label{display:flex;align-items:center;cursor:pointer}
+.pill input{display:none}
+.pill span{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 1.1rem;border-radius:100px;border:1.5px solid var(--bdr);font-size:.875rem;font-weight:500;color:var(--muted);background:var(--surface);transition:all .2s;cursor:pointer}
+.pill input:checked+span{background:var(--pri);border-color:var(--pri);color:#fff}
+.cbgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.5rem}
+.cbl{display:flex;align-items:center;gap:.5rem;min-height:44px;padding:.4rem .75rem;border-radius:var(--rs);border:1.5px solid var(--bdr);background:var(--surface);cursor:pointer;font-size:.875rem;transition:all .2s}
+.cbl:hover{border-color:var(--pri);background:var(--psoft)}
+.cbl input{accent-color:var(--pri);width:16px;height:16px}
+.cbl:has(input:checked){border-color:var(--pri);background:var(--psoft);color:var(--pri);font-weight:600}
+.moods{display:flex;gap:.5rem;flex-wrap:wrap}
+.mbtn{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:56px;min-height:56px;padding:.4rem .5rem;border-radius:var(--rs);border:1.5px solid var(--bdr);background:var(--surface);font-size:1.5rem;transition:all .2s;cursor:pointer}
+.mbtn span{font-size:.65rem;color:var(--muted);font-family:'DM Sans',sans-serif}
+.mbtn:hover{border-color:var(--pri);background:var(--psoft);transform:scale(1.05)}
+.mbtn.sel{border-color:var(--pri);background:var(--psoft);box-shadow:0 0 0 3px var(--psoft)}
+.mbtn.sel span{color:var(--pri);font-weight:600}
+
+/* HISTORY */
+.elist{display:flex;flex-direction:column;gap:.75rem}
+.ecard{background:var(--surface);border:1px solid var(--bdr);border-radius:var(--r);padding:1rem 1.1rem;box-shadow:var(--shadow);transition:transform .2s;animation:vin .25s ease both}
+.ecard:hover{transform:translateY(-2px)}
+.ech{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem}
+.ecd{font-weight:600;font-size:.95rem}
+.ecm{font-size:1.4rem}
+.ecb{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.5rem}
+.badge{display:inline-flex;align-items:center;padding:.2rem .65rem;border-radius:100px;font-size:.75rem;font-weight:600;background:var(--psoft);color:var(--pri)}
+.badge-f{background:var(--s2);color:var(--acc)}
+.badge-s{background:var(--s2);color:var(--muted);font-weight:500}
+.hfoot{margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--bdr)}
+
+/* EMPTY */
+.empty{text-align:center;padding:3rem 1rem}
+.empty-ico{font-size:3rem;margin-bottom:1rem}
+.empty-txt{color:var(--muted);font-size:.95rem;margin-bottom:1.25rem;line-height:1.6}
+
+/* TIPS */
+.tgrid{display:flex;flex-direction:column;gap:1rem}
+.tcard{background:var(--surface);border:1px solid var(--bdr);border-radius:var(--r);padding:1.25rem;box-shadow:var(--shadow);display:flex;gap:1rem;align-items:flex-start;transition:transform .2s}
+.tcard:hover{transform:translateY(-2px)}
+.tcard-ico{font-size:2rem;flex-shrink:0}
+.tcard-title{font-size:1rem;font-weight:700;color:var(--txt);margin-bottom:.35rem}
+.tcard-desc{font-size:.875rem;color:var(--muted);line-height:1.6}
+
+/* HEALTH PLAN */
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:.6rem}
+.clbl{display:flex;align-items:center;gap:.5rem;min-height:44px;padding:.5rem .85rem;border-radius:var(--rs);border:1.5px solid var(--bdr);background:var(--surface);cursor:pointer;font-size:.875rem;font-weight:500;transition:all .2s}
+.clbl:hover{border-color:var(--pri);background:var(--psoft)}
+.clbl input{accent-color:var(--pri);width:16px;height:16px}
+.clbl:has(input:checked){border-color:var(--pri);background:var(--psoft);color:var(--pri);font-weight:600}
+.pout{display:flex;flex-direction:column;gap:1rem;margin-top:1.5rem}
+.psec{background:var(--surface);border:1px solid var(--bdr);border-radius:var(--r);padding:1.1rem 1.25rem;box-shadow:var(--shadow)}
+.psec-title{font-size:1rem;font-weight:700;color:var(--pri);margin-bottom:.6rem;display:flex;align-items:center;gap:.4rem}
+.psec ul{list-style:none;display:flex;flex-direction:column;gap:.4rem}
+.psec li{font-size:.875rem;color:var(--muted);padding-left:1.1rem;position:relative;line-height:1.5}
+.psec li::before{content:'•';position:absolute;left:0;color:var(--pri);font-weight:700}
+
+/* MODAL */
+.moverlay{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:1rem;animation:fadeIn .2s ease}
+.moverlay[hidden]{display:none}
+.modal{background:var(--surface);border-radius:var(--r);padding:1.75rem;max-width:360px;width:100%;box-shadow:var(--shadowlg);animation:scaleIn .2s ease}
+.modal-msg{font-size:1rem;color:var(--txt);margin-bottom:1.25rem;line-height:1.5}
+.modal-acts{display:flex;gap:.75rem;justify-content:flex-end}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+
+/* TOAST */
+.toast{position:fixed;bottom:calc(var(--nav) + 1rem);left:50%;transform:translateX(-50%) translateY(20px);background:var(--txt);color:var(--bg);padding:.7rem 1.4rem;border-radius:100px;font-size:.875rem;font-weight:500;white-space:nowrap;z-index:200;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;box-shadow:var(--shadowlg)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* DESKTOP */
+@media(min-width:768px){
+  #tnav{display:flex}
+  #bnav{display:none}
+  #tfloat{display:none}
+  #main{padding:2rem;max-width:760px}
+  .fcards{grid-template-columns:repeat(3,1fr)}
+  .cbgrid{grid-template-columns:repeat(4,1fr)}
+  .cgrid{grid-template-columns:repeat(3,1fr)}
+  .toast{bottom:1.5rem}
+}
+@media(min-width:1024px){#main{max-width:860px}}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="sp-inner">
+    <div class="sp-logo">
+      <svg width="60" height="60" viewBox="0 0 56 56" fill="none">
+        <circle cx="28" cy="28" r="28" fill="rgba(255,255,255,.15)"/>
+        <path d="M28 14c-3.5-4-10-4-12 2-2.5 7 4 12 12 18 8-6 14.5-11 12-18-2-6-8.5-6-12-2z" fill="white"/>
+      </svg>
+    </div>
+    <h1 class="sp-title">HerCare</h1>
+    <p class="sp-tag">Track. Understand. Thrive.</p>
+    <div class="sp-dots"><span></span><span></span><span></span></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+
+  <!-- TOP NAV -->
+  <header id="tnav">
+    <div class="nbrand">
+      <svg width="22" height="22" viewBox="0 0 56 56" fill="none"><path d="M28 8c-3.5-4-10-4-12 2-2.5 7 4 12 12 18 8-6 14.5-11 12-18-2-6-8.5-6-12-2z" fill="var(--pri)"/></svg>
+      HerCare
+    </div>
+    <nav class="tlinks">
+      <button class="ni on" data-view="home"><span class="ico">🏠</span><span class="lbl">Home</span></button>
+      <button class="ni" data-view="log"><span class="ico">📝</span><span class="lbl">Log</span></button>
+      <button class="ni" data-view="history"><span class="ico">📅</span><span class="lbl">History</span></button>
+      <button class="ni" data-view="reminders"><span class="ico">💡</span><span class="lbl">Tips</span></button>
+      <button class="ni" data-view="health-plan"><span class="ico">🌿</span><span class="lbl">Plan</span></button>
+    </nav>
+    <button class="tbtn" id="ttoggle" aria-label="Toggle theme">🌙</button>
+  </header>
+
+  <main id="main">
+
+    <!-- HOME -->
+    <section id="view-home" class="view on">
+      <div class="hero">
+        <div class="hero-ico">
+          <svg width="64" height="64" viewBox="0 0 56 56" fill="none">
+            <circle cx="28" cy="28" r="28" fill="var(--psoft)"/>
+            <path d="M28 12c-3.5-4-10-4-12 2-2.5 7 4 12 12 18 8-6 14.5-11 12-18-2-6-8.5-6-12-2z" fill="var(--pri)"/>
+          </svg>
+        </div>
+        <h1 class="hero-title">HerCare</h1>
+        <p class="hero-tag">Track. Understand. Thrive.</p>
+        <div class="hero-btns">
+          <button class="btn btn-p" data-nav="log">Log Today</button>
+          <button class="btn btn-o" data-nav="history">View History</button>
+        </div>
+      </div>
+      <div class="fcards">
+        <div class="fc"><div class="fc-ico">🌸</div><h3 class="fc-title">Cycle Tracking</h3><p class="fc-desc">Log your period, ovulation, and PMS days with ease.</p></div>
+        <div class="fc"><div class="fc-ico">📋</div><h3 class="fc-title">Symptom Logging</h3><p class="fc-desc">Track cramps, mood, fatigue, and more every day.</p></div>
+        <div class="fc"><div class="fc-ico">💡</div><h3 class="fc-title">Health Reminders</h3><p class="fc-desc">Personalised tips to support your wellbeing.</p></div>
+      </div>
+    </section>
+
+    <!-- LOG -->
+    <section id="view-log" class="view">
+      <div class="vh"><h2 class="vt">Log Entry</h2><p class="vs">How are you feeling today?</p></div>
+      <form id="lform" novalidate>
+        <div class="fg">
+          <label class="fl" for="edate">Date</label>
+          <input class="fi" type="date" id="edate" required/>
+        </div>
+        <div class="fg">
+          <label class="fl" for="estatus">Cycle Status</label>
+          <select class="fi fsel" id="estatus" required>
+            <option value="">Select status…</option>
+            <option value="period">Period Day</option>
+            <option value="ovulation">Ovulation</option>
+            <option value="pms">PMS</option>
+            <option value="normal">Normal</option>
+          </select>
+          <span class="ferr" id="serr"></span>
+        </div>
+        <div class="fg flow-wrap" id="flowwrap">
+          <label class="fl">Flow Intensity</label>
+          <div class="pills">
+            <div class="pill"><label><input type="radio" name="flow" value="light"/><span>Light</span></label></div>
+            <div class="pill"><label><input type="radio" name="flow" value="medium"/><span>Medium</span></label></div>
+            <div class="pill"><label><input type="radio" name="flow" value="heavy"/><span>Heavy</span></label></div>
+          </div>
+        </div>
+        <div class="fg">
+          <label class="fl">Symptoms</label>
+          <div class="cbgrid">
+            <label class="cbl"><input type="checkbox" name="sym" value="cramps"/><span>Cramps</span></label>
+            <label class="cbl"><input type="checkbox" name="sym" value="headache"/><span>Headache</span></label>
+            <label class="cbl"><input type="checkbox" name="sym" value="bloating"/><span>Bloating</span></label>
+            <label class="cbl"><input type="checkbox" name="sym" value="mood-swings"/><span>Mood Swings</span></label>
+            <label class="cbl"><input type="checkbox" name="sym" value="fatigue"/><span>Fatigue</span></label>
+            <label class="cbl"><input type="checkbox" name="sym" value="acne"/><span>Acne</span></label>
+            <label class="cbl"><input type="checkbox" name="sym" value="back-pain"/><span>Back Pain</span></label>
+          </div>
+        </div>
+        <div class="fg">
+          <label class="fl">Mood</label>
+          <div class="moods">
+            <button type="button" class="mbtn" data-mood="happy">😊<span>Happy</span></button>
+            <button type="button" class="mbtn" data-mood="neutral">😐<span>Neutral</span></button>
+            <button type="button" class="mbtn" data-mood="sad">😔<span>Sad</span></button>
+            <button type="button" class="mbtn" data-mood="irritated">😤<span>Irritated</span></button>
+            <button type="button" class="mbtn" data-mood="anxious">😰<span>Anxious</span></button>
+          </div>
+        </div>
+        <div class="fg">
+          <label class="fl" for="enotes">Notes <span class="opt">(optional)</span></label>
+          <textarea class="fi fta" id="enotes" rows="3" placeholder="Any observations…"></textarea>
+        </div>
+        <span class="ferr" id="ferr"></span>
+        <button type="submit" class="btn btn-p btn-full">Save Entry</button>
+      </form>
+    </section>
+
+    <!-- HISTORY -->
+    <section id="view-history" class="view">
+      <div class="vh"><h2 class="vt">History</h2><p class="vs">Your last 30 entries</p></div>
+      <div id="hempty" class="empty" hidden>
+        <div class="empty-ico">📭</div>
+        <p class="empty-txt">No entries yet. Start logging to see your history.</p>
+        <button class="btn btn-p" data-nav="log">Log Today</button>
+      </div>
+      <div id="hlist" class="elist"></div>
+      <div id="hfoot" class="hfoot" hidden>
+        <button id="clearbtn" class="btn btn-d">Clear All Data</button>
+      </div>
+    </section>
+
+    <!-- REMINDERS -->
+    <section id="view-reminders" class="view">
+      <div class="vh"><h2 class="vt">Reminders</h2><p class="vs">Tips to support your wellbeing</p></div>
+      <div id="tgrid" class="tgrid"></div>
+    </section>
+
+    <!-- HEALTH PLAN -->
+    <section id="view-health-plan" class="view">
+      <div class="vh"><h2 class="vt">Health Plan</h2><p class="vs">Select your concerns for a personalised plan</p></div>
+      <div class="cgrid">
+        <label class="clbl"><input type="checkbox" name="concern" value="pcos"/><span>🔬 PCOS</span></label>
+        <label class="clbl"><input type="checkbox" name="concern" value="endometriosis"/><span>🩺 Endometriosis</span></label>
+        <label class="clbl"><input type="checkbox" name="concern" value="irregular-periods"/><span>📆 Irregular Periods</span></label>
+        <label class="clbl"><input type="checkbox" name="concern" value="pms"/><span>🌊 PMS</span></label>
+        <label class="clbl"><input type="checkbox" name="concern" value="fatigue"/><span>😴 Fatigue</span></label>
+      </div>
+      <button id="genbtn" class="btn btn-p btn-full" style="margin-top:1.25rem">Generate My Plan</button>
+      <div id="pempty" class="empty" style="padding:2rem 1rem">
+        <div class="empty-ico">🌿</div>
+        <p class="empty-txt">Select at least one concern above to generate your personalised health plan.</p>
+      </div>
+      <div id="pout" class="pout" hidden></div>
+    </section>
+
+  </main>
+
+  <!-- BOTTOM NAV -->
+  <nav id="bnav">
+    <button class="ni on" data-view="home"><span class="ico">🏠</span><span class="lbl">Home</span></button>
+    <button class="ni" data-view="log"><span class="ico">📝</span><span class="lbl">Log</span></button>
+    <button class="ni" data-view="history"><span class="ico">📅</span><span class="lbl">History</span></button>
+    <button class="ni" data-view="reminders"><span class="ico">💡</span><span class="lbl">Tips</span></button>
+    <button class="ni" data-view="health-plan"><span class="ico">🌿</span><span class="lbl">Plan</span></button>
+  </nav>
+</div>
+
+<!-- FLOAT THEME BTN -->
+<button class="tbtn" id="tfloat" aria-label="Toggle theme">🌙</button>
+
+<!-- MODAL -->
+<div id="moverlay" class="moverlay" hidden>
+  <div class="modal">
+    <p id="mmsg" class="modal-msg"></p>
+    <div class="modal-acts">
+      <button id="mcancel" class="btn btn-o">Cancel</button>
+      <button id="mconfirm" class="btn btn-d">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ── STORAGE ── */
+const K={E:'hercare_entries',T:'hercare_theme',C:'hercare_concerns'};
+function lsGet(k,fb){try{const r=localStorage.getItem(k);return r!==null?JSON.parse(r):fb;}catch{return fb;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true;}catch(e){if(e.name==='QuotaExceededError')toast('Storage full.');return false;}}
+
+/* ── TOAST ── */
+let _tt;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),2500);
+}
+
+/* ── MODAL ── */
+let _mcb=null;
+function modalShow(msg,cb){
+  document.getElementById('mmsg').textContent=msg;
+  document.getElementById('moverlay').hidden=false;
+  _mcb=cb;
+}
+function modalHide(){document.getElementById('moverlay').hidden=true;_mcb=null;}
+document.getElementById('mcancel').onclick=modalHide;
+document.getElementById('mconfirm').onclick=function(){if(_mcb)_mcb();modalHide();};
+document.getElementById('moverlay').onclick=function(e){if(e.target===this)modalHide();};
+
+/* ── THEME ── */
+let _theme=lsGet(K.T,'light');
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme',_theme);
+  const ic=_theme==='dark'?'☀️':'🌙';
+  document.querySelectorAll('.tbtn').forEach(b=>b.textContent=ic);
+}
+function toggleTheme(){_theme=_theme==='light'?'dark':'light';lsSet(K.T,_theme);applyTheme();}
+document.getElementById('ttoggle').onclick=toggleTheme;
+document.getElementById('tfloat').onclick=toggleTheme;
+
+/* ── SPLASH ── */
+const splash=document.getElementById('splash');
+let _splashDone=false;
+function dismissSplash(){
+  if(_splashDone)return;
+  _splashDone=true;
+  splash.classList.add('hide');
+  splash.addEventListener('animationend',()=>{splash.style.display='none';},{ once:true });
+}
+splash.addEventListener('click',dismissSplash);
+splash.addEventListener('touchstart',dismissSplash,{passive:true});
+setTimeout(dismissSplash,3000);
+
+/* ── ROUTER ── */
+const VIEWS=['home','log','history','reminders','health-plan'];
+let _cur='home';
+function go(name){
+  if(!VIEWS.includes(name))return;
+  VIEWS.forEach(v=>{
+    const el=document.getElementById('view-'+v);
+    if(el){el.classList.toggle('on',v===name);}
+  });
+  document.querySelectorAll('.ni').forEach(b=>{
+    b.classList.toggle('on',b.dataset.view===name||b.dataset.nav===name);
+  });
+  _cur=name;
+  if(name==='history')renderHistory();
+  if(name==='health-plan')hpInit();
+  if(name==='reminders')renderTips();
+  document.getElementById('main').scrollTop=0;
+}
+
+/* ── NAV WIRING ── */
+document.querySelectorAll('.ni[data-view]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.view)));
+document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.nav)));
+
+/* ── LOG FORM ── */
+let _mood=null;
+const edate=document.getElementById('edate');
+const estatus=document.getElementById('estatus');
+const flowwrap=document.getElementById('flowwrap');
+edate.value=new Date().toISOString().slice(0,10);
+
+estatus.addEventListener('change',function(){
+  const p=this.value==='period';
+  flowwrap.classList.toggle('open',p);
+  if(!p)document.querySelectorAll('input[name="flow"]').forEach(r=>r.checked=false);
+});
+
+document.querySelectorAll('.mbtn').forEach(b=>{
+  b.addEventListener('click',function(){
+    document.querySelectorAll('.mbtn').forEach(x=>x.classList.remove('sel'));
+    this.classList.add('sel');
+    _mood=this.dataset.mood;
+  });
+});
+
+document.getElementById('lform').addEventListener('submit',function(e){
+  e.preventDefault();
+  const date=edate.value;
+  const status=estatus.value;
+  document.getElementById('ferr').textContent='';
+  document.getElementById('serr').textContent='';
+  if(!date){document.getElementById('ferr').textContent='Please select a date.';return;}
+  if(!status){document.getElementById('serr').textContent='Please select a cycle status.';return;}
+  const flowEl=document.querySelector('input[name="flow"]:checked');
+  const flow=status==='period'&&flowEl?flowEl.value:null;
+  const symptoms=[...document.querySelectorAll('input[name="sym"]:checked')].map(c=>c.value);
+  const notes=document.getElementById('enotes').value.trim();
+  const entry={id:Date.now().toString(),date,status,flow,symptoms,mood:_mood||'neutral',notes};
+  const entries=lsGet(K.E,[]);
+  const idx=entries.findIndex(x=>x.date===date);
+  if(idx>=0)entries[idx]=entry;else entries.push(entry);
+  if(lsSet(K.E,entries)){
+    toast('Entry saved ✓');
+    resetForm();
+  }
+});
+
+function resetForm(){
+  document.getElementById('lform').reset();
+  edate.value=new Date().toISOString().slice(0,10);
+  flowwrap.classList.remove('open');
+  document.querySelectorAll('.mbtn').forEach(b=>b.classList.remove('sel'));
+  _mood=null;
+  document.getElementById('ferr').textContent='';
+  document.getElementById('serr').textContent='';
+}
+
+/* ── HISTORY ── */
+const SL={period:'Period Day',ovulation:'Ovulation',pms:'PMS',normal:'Normal'};
+const ME={happy:'😊',neutral:'😐',sad:'😔',irritated:'😤',anxious:'😰'};
+const SYM={cramps:'Cramps',headache:'Headache',bloating:'Bloating','mood-swings':'Mood Swings',fatigue:'Fatigue',acne:'Acne','back-pain':'Back Pain'};
+
+function renderHistory(){
+  const list=document.getElementById('hlist');
+  const empty=document.getElementById('hempty');
+  const foot=document.getElementById('hfoot');
+  const entries=lsGet(K.E,[]);
+  const sorted=[...entries].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,30);
+  list.innerHTML='';
+  if(!sorted.length){empty.hidden=false;foot.hidden=true;return;}
+  empty.hidden=true;foot.hidden=false;
+  sorted.forEach(en=>{
+    const c=document.createElement('div');c.className='ecard';
+    const syms=(en.symptoms||[]).map(s=>`<span class="badge badge-s">${SYM[s]||s}</span>`).join('');
+    const fb=en.flow?`<span class="badge badge-f">${en.flow[0].toUpperCase()+en.flow.slice(1)} flow</span>`:'';
+    c.innerHTML=`<div class="ech"><span class="ecd">${fmtDate(en.date)}</span><span class="ecm">${ME[en.mood]||'😐'}</span></div>
+    <div class="ecb"><span class="badge">${SL[en.status]||en.status}</span>${fb}${syms}</div>
+    ${en.notes?`<p style="font-size:.8rem;color:var(--muted);margin-top:.4rem;line-height:1.5">${esc(en.notes)}</p>`:''}`;
+    list.appendChild(c);
+  });
+}
+
+document.getElementById('clearbtn').addEventListener('click',function(){
+  modalShow('Delete all entries? This cannot be undone.',function(){
+    localStorage.removeItem(K.E);renderHistory();
+  });
+});
+
+function fmtDate(iso){const[y,m,d]=iso.split('-');const mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return `${mn[+m-1]} ${+d}, ${y}`;}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+/* ── REMINDERS ── */
+const TIPS=[
+  {ico:'💧',title:'Stay Hydrated',desc:'Drink at least 8 glasses of water daily. Herbal teas like ginger or chamomile can soothe cramps and reduce bloating during your period.'},
+  {ico:'🥩',title:'Iron-Rich Foods',desc:'Replenish iron with spinach, lentils, red meat, tofu, and fortified cereals. Pair with vitamin C (citrus, bell peppers) to boost absorption.'},
+  {ico:'🏃‍♀️',title:'Exercise Tips',desc:'Light to moderate exercise — walking, yoga, swimming — releases endorphins that reduce cramps and improve mood. Gentle stretching helps during PMS.'},
+  {ico:'🩺',title:'When to See a Doctor',desc:'Seek advice if you have very heavy bleeding, periods over 7 days, severe pelvic pain, cycles under 21 or over 35 days, or sudden changes in your cycle.'}
+];
+let _tipsRendered=false;
+function renderTips(){
+  if(_tipsRendered)return;_tipsRendered=true;
+  const g=document.getElementById('tgrid');
+  TIPS.forEach(t=>{
+    const c=document.createElement('div');c.className='tcard';
+    c.innerHTML=`<div class="tcard-ico">${t.ico}</div><div><h3 class="tcard-title">${t.title}</h3><p class="tcard-desc">${t.desc}</p></div>`;
+    g.appendChild(c);
+  });
+}
+
+/* ── HEALTH PLAN ── */
+const HP={
+  pcos:{diet:['Low-GI foods: oats, legumes, leafy greens','Reduce refined sugars and processed carbs','Anti-inflammatory foods: berries, fatty fish, turmeric','Regular small meals to stabilise blood sugar','Mediterranean-style diet is well-supported for PCOS'],exercise:['30 min moderate cardio 5× per week','Strength training 2–3× per week for insulin sensitivity','Yoga or Pilates for stress and hormone balance','Avoid over-exercising — it can worsen hormonal imbalance'],lifestyle:['Consistent sleep schedule (7–9 hours)','Manage stress with mindfulness or journaling','Track cycle irregularities monthly','Limit alcohol and avoid smoking'],doctor:['Annual ultrasound to monitor ovarian cysts','Regular blood glucose and insulin checks','Discuss hormonal therapy if needed','Ask about metformin if insulin resistance is confirmed']},
+  endometriosis:{diet:['Omega-3 rich foods: fatty fish, flaxseeds, walnuts','Increase fibre to support oestrogen metabolism','Reduce red meat and trans fats','Try eliminating gluten or dairy if they trigger symptoms','Cruciferous vegetables support liver detox of oestrogen'],exercise:['Low-impact: swimming, walking, yoga during flares','Pelvic floor physiotherapy can reduce pain significantly','Avoid high-impact exercise during your period if painful','Regular gentle movement reduces inflammation'],lifestyle:['Heat therapy (hot water bottle) for pelvic pain','Prioritise sleep with a calming bedtime routine','Track pain levels alongside your cycle','Reduce exposure to endocrine disruptors (plastics, some cosmetics)'],doctor:['See a gynaecologist with endometriosis expertise','Discuss hormonal treatments: progestins, GnRH agonists','Ask about laparoscopy for diagnosis and treatment','Explore pain management: NSAIDs, nerve blocks']},
+  'irregular-periods':{diet:['Ensure adequate caloric intake — undereating disrupts cycles','Zinc-rich foods: pumpkin seeds, chickpeas, cashews','Healthy fats (avocado, nuts, olive oil) for hormone production','Limit excessive caffeine and alcohol','Magnesium-rich foods: dark chocolate, spinach, almonds'],exercise:['Moderate exercise is beneficial — avoid extreme endurance training','Ensure you eat enough to compensate for exercise','Yoga and stress-reduction practices help regulate cycles','Consistency over intensity'],lifestyle:['Manage stress — high cortisol suppresses reproductive hormones','Maintain a healthy body weight','Keep a cycle diary to identify patterns','Ensure 7–9 hours of quality sleep'],doctor:['Rule out thyroid disorders (common cause)','Check for PCOS or premature ovarian insufficiency','Hormonal blood tests: FSH, LH, oestradiol, progesterone','Seek advice if no period for 3+ months']},
+  pms:{diet:['Calcium-rich foods reduce PMS symptoms: dairy, fortified milks','Magnesium in the luteal phase: dark chocolate, nuts, seeds','Reduce salt to minimise bloating','Limit caffeine and alcohol the week before your period','Small frequent meals to stabilise blood sugar'],exercise:['Aerobic exercise 3–5× per week significantly reduces PMS','Yoga and stretching ease physical tension','Even a 20-minute walk boosts serotonin','Track how exercise affects your symptoms'],lifestyle:['Keep a PMS diary to predict difficult days','Prioritise sleep — deprivation worsens every PMS symptom','Deep breathing, meditation, journaling for stress','Communicate your needs to those around you'],doctor:['Discuss PMDD if symptoms are severe','Ask about SSRIs for mood-related PMS/PMDD','Consider the combined pill to suppress hormonal fluctuations','Ask about vitamin B6 and calcium supplementation']},
+  fatigue:{diet:['Iron-rich foods to rule out anaemia: spinach, lentils, red meat','Pair iron with vitamin C for better absorption','Ensure adequate B12 (meat, eggs, dairy or supplements)','Stay well hydrated — dehydration causes fatigue','Avoid refined sugar energy crashes; eat balanced meals'],exercise:['Gentle exercise increases energy — start with 10–15 min walks','Yoga and stretching improve circulation','Avoid intense exercise when severely fatigued','Build activity gradually and listen to your body'],lifestyle:['Sleep hygiene: consistent bedtime, dark cool room, no screens before bed','Short rest breaks rather than pushing through exhaustion','Manage stress — chronic stress drives fatigue','Track fatigue alongside your cycle'],doctor:['Rule out anaemia with a full blood count','Check thyroid function (TSH, T3, T4)','Test vitamin D, B12, and ferritin levels','Ask about chronic fatigue syndrome if persistent and severe']}
+};
+
+let _hpInit=false;
+function hpInit(){
+  if(!_hpInit){
+    _hpInit=true;
+    document.querySelectorAll('input[name="concern"]').forEach(cb=>{
+      cb.addEventListener('change',function(){lsSet(K.C,getSelected());});
+    });
+    document.getElementById('genbtn').addEventListener('click',function(){
+      lsSet(K.C,getSelected());generatePlan();
+    });
+  }
+  const saved=lsGet(K.C,[]);
+  document.querySelectorAll('input[name="concern"]').forEach(cb=>{cb.checked=saved.includes(cb.value);});
+  if(saved.length)generatePlan();
+}
+
+function getSelected(){return[...document.querySelectorAll('input[name="concern"]:checked')].map(c=>c.value);}
+
+function generatePlan(){
+  const sel=getSelected();
+  const empty=document.getElementById('pempty');
+  const out=document.getElementById('pout');
+  if(!sel.length){empty.hidden=false;out.hidden=true;return;}
+  const merged={diet:[],exercise:[],lifestyle:[],doctor:[]};
+  sel.forEach(k=>{const p=HP[k];if(!p)return;['diet','exercise','lifestyle','doctor'].forEach(s=>{p[s].forEach(i=>{if(!merged[s].includes(i))merged[s].push(i);});});});
+  const meta=[{k:'diet',ico:'🥗',t:'Dietary Recommendations'},{k:'exercise',ico:'🏃‍♀️',t:'Exercise Suggestions'},{k:'lifestyle',ico:'🌙',t:'Lifestyle Tips'},{k:'doctor',ico:'🩺',t:'When to See a Doctor'}];
+  out.innerHTML='';
+  meta.forEach(({k,ico,t})=>{
+    if(!merged[k].length)return;
+    const s=document.createElement('div');s.className='psec';
+    s.innerHTML=`<div class="psec-title">${ico} ${t}</div><ul>${merged[k].map(i=>`<li>${esc(i)}</li>`).join('')}</ul>`;
+    out.appendChild(s);
+  });
+  empty.hidden=true;out.hidden=false;
+}
+
+/* ── INIT ── */
+applyTheme();
+renderTips();
+go('home');
+
+})();
+</script>
+</body>
+</html>

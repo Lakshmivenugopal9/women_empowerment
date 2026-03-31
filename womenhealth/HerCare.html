@@ -4,16 +4,14 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>HerCare</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet"/>
+<!-- Fonts: system stack only, no external requests -->
 <style>
 :root,[data-theme="light"]{--bg:#FFF8F6;--surface:#FFFFFF;--s2:#FFF0F3;--pri:#E8637A;--psoft:#F9D0D8;--pdark:#C94D63;--txt:#2D2D2D;--muted:#7A6B6B;--acc:#C084A0;--bdr:#F0E0E4;--danger:#D94F4F;--shadow:0 2px 16px rgba(232,99,122,.10);--shadowlg:0 8px 32px rgba(232,99,122,.15);--nav:64px;--r:14px;--rs:8px}
 [data-theme="dark"]{--bg:#1A1520;--surface:#241D2B;--s2:#2E2438;--pri:#E8637A;--psoft:#3D2535;--pdark:#F07A8F;--txt:#F5EEF0;--muted:#A89BA0;--acc:#C084A0;--bdr:#3A2D3A;--danger:#E06060;--shadow:0 2px 16px rgba(0,0,0,.35);--shadowlg:0 8px 32px rgba(0,0,0,.45)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{font-size:16px}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100dvh;transition:background .3s,color .3s;-webkit-font-smoothing:antialiased}
-h1,h2,h3{font-family:'Playfair Display',serif;line-height:1.2}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--txt);min-height:100dvh;transition:background .3s,color .3s;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:Georgia,'Times New Roman',serif;line-height:1.2}
 button{font-family:inherit;cursor:pointer;border:none;background:none}
 input,select,textarea{font-family:inherit}
 
@@ -114,7 +112,7 @@ input,select,textarea{font-family:inherit}
 .cbl:has(input:checked){border-color:var(--pri);background:var(--psoft);color:var(--pri);font-weight:600}
 .moods{display:flex;gap:.5rem;flex-wrap:wrap}
 .mbtn{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:56px;min-height:56px;padding:.4rem .5rem;border-radius:var(--rs);border:1.5px solid var(--bdr);background:var(--surface);font-size:1.5rem;transition:all .2s;cursor:pointer}
-.mbtn span{font-size:.65rem;color:var(--muted);font-family:'DM Sans',sans-serif}
+.mbtn span{font-size:.65rem;color:var(--muted);font-family:-apple-system,sans-serif}
 .mbtn:hover{border-color:var(--pri);background:var(--psoft);transform:scale(1.05)}
 .mbtn.sel{border-color:var(--pri);background:var(--psoft);box-shadow:0 0 0 3px var(--psoft)}
 .mbtn.sel span{color:var(--pri);font-weight:600}
